@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "content-library",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "/Users/chunzhouli/Content/kol-content-library", "-l", "3456"],
+      "port": 3456
+    }
+  ]
+}
