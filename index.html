@@ -372,37 +372,161 @@
         .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
         .empty-state p { font-size: 16px; color: var(--label-soft); }
 
-        /* ===== Stats Banner (inline strip) ===== */
+        /* ===== Donut Chart Stats Section (Sci-Fi HUD) ===== */
+        @keyframes hud-scan-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes hud-pulse-glow {
+            0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(197,249,85,0.6), 0 0 20px rgba(197,249,85,0.3); }
+            50% { opacity: 0.85; text-shadow: 0 0 16px rgba(197,249,85,0.9), 0 0 40px rgba(197,249,85,0.5); }
+        }
+        @keyframes hud-flicker {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.5; }
+            93% { opacity: 0.7; }
+            95% { opacity: 0.3; }
+            97% { opacity: 0.7; }
+        }
+        @keyframes hud-particle-drift {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-60px) translateX(20px); opacity: 0; }
+        }
+        @keyframes hud-seg-enter {
+            0% { transform: scale(0.92); opacity: 0; }
+            60% { transform: scale(1.03); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         .stats-banner {
             max-width: 1600px; margin: 0 auto; padding: 20px 40px 4px;
         }
-        .stats-banner-grid {
-            display: flex; align-items: center; gap: 32px;
+        .donut-section {
+            background: radial-gradient(ellipse at center, rgba(12,16,12,0.95) 0%, rgba(6,6,8,0.98) 100%);
+            border: 1px solid rgba(197,249,85,0.1);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            position: relative;
+            overflow: hidden;
         }
-        .stat-card {
-            display: flex; align-items: center; gap: 10px;
+        /* Grid overlay */
+        .donut-section::before {
+            content: ""; position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(197,249,85,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(197,249,85,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none; z-index: 0;
         }
-        .stat-card-icon {
-            width: 32px; height: 32px; border-radius: var(--radius-md);
+        /* Particle dots layer */
+        .donut-section::after {
+            content: ""; position: absolute; inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(197,249,85,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 60%, rgba(0,212,255,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 40% 15%, rgba(255,62,143,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 55% 75%, rgba(197,249,85,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 35%, rgba(0,212,255,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 55%, rgba(255,62,143,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 15% 85%, rgba(197,249,85,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 10%, rgba(0,212,255,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 45%, rgba(255,62,143,0.35) 0%, transparent 100%),
+                radial-gradient(1px 1px at 35% 90%, rgba(197,249,85,0.35) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 5% 50%, rgba(0,212,255,0.5) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 60% 5%, rgba(197,249,85,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 78% 88%, rgba(255,62,143,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 95% 70%, rgba(197,249,85,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 22% 40%, rgba(0,212,255,0.35) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 30%, rgba(255,62,143,0.3) 0%, transparent 100%);
+            pointer-events: none; z-index: 0;
+            animation: hud-flicker 6s ease-in-out infinite;
+        }
+        /* HUD corner frames */
+        .hud-corner {
+            position: absolute; width: 24px; height: 24px; z-index: 2; pointer-events: none;
+        }
+        .hud-corner--tl { top: 8px; left: 8px; border-top: 2px solid rgba(197,249,85,0.4); border-left: 2px solid rgba(197,249,85,0.4); }
+        .hud-corner--tr { top: 8px; right: 8px; border-top: 2px solid rgba(197,249,85,0.4); border-right: 2px solid rgba(197,249,85,0.4); }
+        .hud-corner--bl { bottom: 8px; left: 8px; border-bottom: 2px solid rgba(197,249,85,0.4); border-left: 2px solid rgba(197,249,85,0.4); }
+        .hud-corner--br { bottom: 8px; right: 8px; border-bottom: 2px solid rgba(197,249,85,0.4); border-right: 2px solid rgba(197,249,85,0.4); }
+        /* HUD corner text */
+        .hud-text {
+            position: absolute; z-index: 2; pointer-events: none;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+            color: rgba(197,249,85,0.45);
+            animation: hud-flicker 8s ease-in-out infinite;
+        }
+        .hud-text--tl { top: 14px; left: 38px; }
+        .hud-text--tr { top: 14px; right: 38px; text-align: right; }
+        .hud-text--bl { bottom: 14px; left: 38px; }
+        .hud-text--br { bottom: 14px; right: 38px; text-align: right; color: rgba(255,62,143,0.4); }
+
+        .donut-tabs {
+            display: flex; align-items: center; gap: 0;
+            background: rgba(197,249,85,0.04);
+            border: 1px solid rgba(197,249,85,0.12);
+            border-radius: 999px; padding: 3px;
+            width: fit-content; margin: 0 auto 24px;
+            position: relative; z-index: 1;
+        }
+        .donut-tab {
+            padding: 8px 20px; border-radius: 999px;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.8px;
+            color: var(--label-muted); cursor: pointer;
+            transition: all 0.3s ease; border: none; background: none;
+            white-space: nowrap; text-transform: uppercase;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        .donut-tab:hover { color: var(--label-soft); }
+        .donut-tab.active {
+            background: var(--accent-base); color: #0a0a0a;
+            box-shadow: 0 0 20px rgba(197,249,85,0.35), 0 0 40px rgba(197,249,85,0.15);
+        }
+        .donut-chart-area {
             display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
+            position: relative; z-index: 1;
+            min-height: 300px;
         }
-        .stat-card:nth-child(1) .stat-card-icon { background: rgba(197,249,85,0.10); color: var(--accent-base); }
-        .stat-card:nth-child(2) .stat-card-icon { background: rgba(197,249,85,0.10); color: var(--accent-base); }
-        .stat-card:nth-child(3) .stat-card-icon { background: rgba(255,62,143,0.10); color: var(--accent-support-base); }
-        .stat-card-number {
-            font-size: 20px; font-weight: 700; line-height: 1;
-            font-variant-numeric: tabular-nums;
-            color: var(--label-title);
+        .donut-svg-wrap {
+            position: relative; width: 100%; max-width: 700px; flex-shrink: 0;
         }
-        .stat-card-label {
-            font-size: 11px; font-weight: 500; color: var(--label-muted);
+        .donut-svg-wrap svg { width: 100%; height: auto; }
+        .donut-center-label {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); text-align: center;
+            pointer-events: none; z-index: 2;
         }
-        .stat-card-text { display: flex; flex-direction: column; gap: 1px; }
+        .donut-center-number {
+            font-size: 36px; font-weight: 800; color: #C5F955;
+            line-height: 1.1; font-variant-numeric: tabular-nums;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            letter-spacing: 2px;
+            animation: hud-pulse-glow 3s ease-in-out infinite;
+        }
+        .donut-center-text {
+            font-size: 13px; font-weight: 600; color: rgba(197,249,85,0.5);
+            text-transform: uppercase; letter-spacing: 2px; margin-top: 4px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        /* Scan line rotation */
+        .hud-scan-group {
+            transform-origin: 350px 220px;
+            animation: hud-scan-rotate 6s linear infinite;
+        }
         .logo-img { width: 36px; height: 36px; border-radius: var(--radius-lg); }
         @media (max-width: 640px) {
             .stats-banner { padding: 16px 20px 4px; }
-            .stats-banner-grid { flex-wrap: wrap; gap: 16px; }
+            .donut-section { padding: 16px; }
+            .donut-chart-area { min-height: 220px; }
+            .donut-svg-wrap { width: 100%; height: auto; max-width: 340px; }
+            .donut-svg-wrap svg { width: 100%; height: auto; }
+            .donut-center-number { font-size: 24px; }
+            .donut-tabs { flex-wrap: wrap; justify-content: center; }
+            .hud-text { display: none; }
+            .hud-corner { display: none; }
         }
 
         /* Video embed preview on hover */
@@ -531,18 +655,28 @@
     <div class="active-filters-summary" id="activeFiltersSummary" style="display:none"></div>
 
     <div class="stats-banner">
-        <div class="stats-banner-grid">
-            <div class="stat-card">
-                <div class="stat-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
-                <div class="stat-card-text"><div class="stat-card-number" id="bannerViews">0</div><div class="stat-card-label">Total Views</div></div>
+        <div class="donut-section">
+            <div class="hud-corner hud-corner--tl"></div>
+            <div class="hud-corner hud-corner--tr"></div>
+            <div class="hud-corner hud-corner--bl"></div>
+            <div class="hud-corner hud-corner--br"></div>
+            <div class="hud-text hud-text--tl">SYS_STATUS: ONLINE</div>
+            <div class="hud-text hud-text--tr">ANALYSIS_CORE_V3.1</div>
+            <div class="hud-text hud-text--bl">RENDER_ENGINE: ACTIVE</div>
+            <div class="hud-text hud-text--br">DATA_STREAM: ACTIVE</div>
+            <div class="donut-tabs" id="donutTabs">
+                <button class="donut-tab active" data-tab="category">Category Views</button>
+                <button class="donut-tab" data-tab="platform">Platform Distribution</button>
+                <button class="donut-tab" data-tab="language">Language Analytics</button>
             </div>
-            <div class="stat-card">
-                <div class="stat-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-                <div class="stat-card-text"><div class="stat-card-number" id="bannerKols">0</div><div class="stat-card-label">KOL Partners</div></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg></div>
-                <div class="stat-card-text"><div class="stat-card-number" id="bannerContent">0</div><div class="stat-card-label">Content Pieces</div></div>
+            <div class="donut-chart-area">
+                <div class="donut-svg-wrap">
+                    <svg id="donutSvg" viewBox="0 0 700 440"></svg>
+                    <div class="donut-center-label">
+                        <div class="donut-center-number" id="donutCenterNum">0</div>
+                        <div class="donut-center-text" id="donutCenterText">VIEWS</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -977,18 +1111,296 @@
             if (n >= 1000) return Math.round(n / 1000).toLocaleString() + "K";
             return n.toLocaleString();
         }
+
+        /* ===== Donut Chart System ===== */
+        var activeDonutTab = "category";
+        var donutColors = [
+            "#C5F955", "#FF3E8F", "#00D4FF", "#FF8A00", "#A855F7",
+            "#10B981", "#F43F5E", "#FACC15", "#6366F1", "#EC4899"
+        ];
+
+        function getDonutData(data, tab) {
+            var counts = {};
+            var viewsByKey = {};
+            if (tab === "category") {
+                data.forEach(function(item) {
+                    (item.cats || []).forEach(function(c) {
+                        counts[c] = (counts[c] || 0) + 1;
+                        viewsByKey[c] = (viewsByKey[c] || 0) + (item.views || 0);
+                    });
+                });
+                var sorted = Object.keys(viewsByKey).sort(function(a,b){ return viewsByKey[b] - viewsByKey[a]; });
+                var totalViews = Object.values(viewsByKey).reduce(function(s,v){return s+v;},0);
+                return {
+                    segments: sorted.map(function(k){ return { name: k, value: viewsByKey[k], count: counts[k] }; }),
+                    total: totalViews,
+                    centerNum: formatViewsBanner(totalViews),
+                    centerText: "VIEWS"
+                };
+            } else if (tab === "platform") {
+                data.forEach(function(item) {
+                    var raw = item.p || "other";
+                    var p;
+                    if (raw === "youtube-shorts" || raw === "youtube-long") p = "YouTube";
+                    else if (raw === "instagram") p = "Instagram";
+                    else if (raw === "tiktok") p = "TikTok";
+                    else p = "Other";
+                    counts[p] = (counts[p] || 0) + 1;
+                });
+                var sorted = Object.keys(counts).sort(function(a,b){ return counts[b] - counts[a]; });
+                var totalKols = new Set(data.map(function(d){return d.kol;})).size;
+                return {
+                    segments: sorted.map(function(k){ return { name: k, value: counts[k] }; }),
+                    total: Object.values(counts).reduce(function(s,v){return s+v;},0),
+                    centerNum: totalKols.toLocaleString(),
+                    centerText: "KOL PARTNERS"
+                };
+            } else {
+                data.forEach(function(item) {
+                    var l = langLabels[item.lang] || item.lang || "Other";
+                    counts[l] = (counts[l] || 0) + 1;
+                });
+                var sorted = Object.keys(counts).sort(function(a,b){ return counts[b] - counts[a]; });
+                return {
+                    segments: sorted.map(function(k){ return { name: k, value: counts[k] }; }),
+                    total: data.length,
+                    centerNum: data.length.toLocaleString(),
+                    centerText: "CONTENT"
+                };
+            }
+        }
+
+        function renderDonutChart(data, animate) {
+            var dd = getDonutData(data, activeDonutTab);
+            var svg = document.getElementById("donutSvg");
+            var centerNum = document.getElementById("donutCenterNum");
+            var centerText = document.getElementById("donutCenterText");
+
+            centerNum.textContent = dd.centerNum;
+            centerText.textContent = dd.centerText;
+
+            var cx = 350, cy = 220, R = 130, strokeW = 38;
+            var innerR = R - strokeW/2 - 12;
+            var outerR = R + strokeW/2 + 4;
+            var circumference = 2 * Math.PI * R;
+            var total = dd.segments.reduce(function(s, seg){ return s + seg.value; }, 0);
+            if (total === 0) { svg.innerHTML = ""; return; }
+
+            // Defs for glow filters (stronger bloom)
+            var svgContent = '<defs>';
+            dd.segments.forEach(function(seg, i) {
+                var color = donutColors[i % donutColors.length];
+                svgContent += '<filter id="glow'+i+'" x="-80%" y="-80%" width="260%" height="260%">' +
+                    '<feGaussianBlur stdDeviation="10" result="blur"/>' +
+                    '<feFlood flood-color="'+color+'" flood-opacity="0.7" result="color"/>' +
+                    '<feComposite in="color" in2="blur" operator="in" result="shadow"/>' +
+                    '<feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+                    '</filter>';
+            });
+            // Scan line glow
+            svgContent += '<filter id="scanGlow" x="-50%" y="-50%" width="200%" height="200%">' +
+                '<feGaussianBlur stdDeviation="3" result="blur"/>' +
+                '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+                '</filter>';
+            // Ambient glow for decorative rings
+            svgContent += '<filter id="ringGlow" x="-50%" y="-50%" width="200%" height="200%">' +
+                '<feGaussianBlur stdDeviation="2" result="blur"/>' +
+                '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+                '</filter>';
+            svgContent += '</defs>';
+
+            // === Decorative concentric rings ===
+            // Outermost thin ring with tick marks
+            var outerDecR = outerR + 14;
+            var outerDecCircum = 2 * Math.PI * outerDecR;
+            svgContent += '<circle cx="'+cx+'" cy="'+cy+'" r="'+outerDecR+'" fill="none" ' +
+                'stroke="rgba(197,249,85,0.12)" stroke-width="1" ' +
+                'stroke-dasharray="3 8" />';
+
+            // Second outer decorative ring
+            var outerDec2R = outerR + 8;
+            svgContent += '<circle cx="'+cx+'" cy="'+cy+'" r="'+outerDec2R+'" fill="none" ' +
+                'stroke="rgba(197,249,85,0.06)" stroke-width="0.5" />';
+
+            // Inner decorative ring (tick marks)
+            var innerDecR = innerR - 8;
+            svgContent += '<circle cx="'+cx+'" cy="'+cy+'" r="'+innerDecR+'" fill="none" ' +
+                'stroke="rgba(197,249,85,0.1)" stroke-width="1" ' +
+                'stroke-dasharray="2 12" />';
+
+            // Inner thin solid ring
+            svgContent += '<circle cx="'+cx+'" cy="'+cy+'" r="'+innerR+'" fill="none" ' +
+                'stroke="rgba(197,249,85,0.08)" stroke-width="1" />';
+
+            // Very inner ring
+            var veryInnerR = innerR - 16;
+            svgContent += '<circle cx="'+cx+'" cy="'+cy+'" r="'+veryInnerR+'" fill="none" ' +
+                'stroke="rgba(255,62,143,0.06)" stroke-width="0.5" />';
+
+            // Outer faint reference ring
+            svgContent += '<circle cx="'+cx+'" cy="'+cy+'" r="'+outerR+'" fill="none" ' +
+                'stroke="rgba(197,249,85,0.06)" stroke-width="1" />';
+
+            // === Crosshair/reticle in center ===
+            var chSize = 18;
+            svgContent += '<line x1="'+(cx-chSize)+'" y1="'+cy+'" x2="'+(cx-6)+'" y2="'+cy+'" stroke="rgba(197,249,85,0.2)" stroke-width="1" />';
+            svgContent += '<line x1="'+(cx+6)+'" y1="'+cy+'" x2="'+(cx+chSize)+'" y2="'+cy+'" stroke="rgba(197,249,85,0.2)" stroke-width="1" />';
+            svgContent += '<line x1="'+cx+'" y1="'+(cy-chSize)+'" x2="'+cx+'" y2="'+(cy-6)+'" stroke="rgba(197,249,85,0.2)" stroke-width="1" />';
+            svgContent += '<line x1="'+cx+'" y1="'+(cy+6)+'" x2="'+cx+'" y2="'+(cy+chSize)+'" stroke="rgba(197,249,85,0.2)" stroke-width="1" />';
+            // Small center dot
+            svgContent += '<circle cx="'+cx+'" cy="'+cy+'" r="2" fill="rgba(197,249,85,0.15)" />';
+
+            // === Tick marks around outer ring (every 30 degrees) ===
+            for (var t = 0; t < 360; t += 30) {
+                var tRad = (t - 90) * Math.PI / 180;
+                var tInX = cx + (outerR + 2) * Math.cos(tRad);
+                var tInY = cy + (outerR + 2) * Math.sin(tRad);
+                var tLen = (t % 90 === 0) ? 8 : 4;
+                var tOutX = cx + (outerR + 2 + tLen) * Math.cos(tRad);
+                var tOutY = cy + (outerR + 2 + tLen) * Math.sin(tRad);
+                var tOpacity = (t % 90 === 0) ? 0.25 : 0.12;
+                svgContent += '<line x1="'+tInX.toFixed(1)+'" y1="'+tInY.toFixed(1)+'" x2="'+tOutX.toFixed(1)+'" y2="'+tOutY.toFixed(1)+'" stroke="rgba(197,249,85,'+tOpacity+')" stroke-width="1" />';
+            }
+
+            var offset = 0;
+            var gapDeg = dd.segments.length > 1 ? 3 : 0;
+            var usableFraction = Math.max(0, 1 - (gapDeg / 360) * dd.segments.length);
+            var labelData = [];
+            var innerTrackR = R - strokeW/2 - 6;
+
+            // Calculate max fraction for proportional thickness
+            var maxFrac = dd.segments.reduce(function(m, seg){ return Math.max(m, seg.value / total); }, 0);
+            var minStroke = 14, maxStroke = 48;
+
+            // Draw segments - outer thick ring + inner thin companion ring
+            dd.segments.forEach(function(seg, i) {
+                var frac = (seg.value / total) * usableFraction;
+                var rawFrac = seg.value / total;
+                var dashLen = frac * circumference;
+                var gapLen = circumference - dashLen;
+                var color = donutColors[i % donutColors.length];
+                var rotDeg = (offset * 360) - 90;
+                var animDelay = animate ? (i * 120) : 0;
+
+                // Proportional stroke width: bigger data = thicker ring
+                var segStrokeW = minStroke + (rawFrac / maxFrac) * (maxStroke - minStroke);
+
+                // Inner thin companion arc (same angle, thinner, slightly transparent)
+                var innerCompR = R - segStrokeW/2 - 6;
+                var innerCircum = 2 * Math.PI * innerCompR;
+                var innerDash = frac * innerCircum;
+                var innerGap = innerCircum - innerDash;
+                svgContent += '<circle cx="'+cx+'" cy="'+cy+'" r="'+innerCompR.toFixed(1)+'" ' +
+                    'fill="none" stroke="'+color+'" stroke-width="3" opacity="0.45" ' +
+                    'stroke-dasharray="'+innerDash.toFixed(2)+' '+innerGap.toFixed(2)+'" ' +
+                    'stroke-dashoffset="'+(animate ? innerCircum : 0)+'" ' +
+                    'stroke-linecap="butt" ' +
+                    'transform="rotate('+rotDeg.toFixed(2)+' '+cx+' '+cy+')" ' +
+                    'class="donut-seg" ' +
+                    'style="transition: stroke-dashoffset 0.8s cubic-bezier(0.22,0.61,0.36,1) '+animDelay+'ms;" />';
+
+                // Main outer arc with proportional thickness and glow
+                svgContent += '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" ' +
+                    'fill="none" stroke="'+color+'" stroke-width="'+segStrokeW.toFixed(1)+'" ' +
+                    'stroke-dasharray="'+dashLen.toFixed(2)+' '+gapLen.toFixed(2)+'" ' +
+                    'stroke-dashoffset="'+(animate ? circumference : 0)+'" ' +
+                    'stroke-linecap="butt" ' +
+                    'filter="url(#glow'+i+')" ' +
+                    'transform="rotate('+rotDeg.toFixed(2)+' '+cx+' '+cy+')" ' +
+                    'class="donut-seg" ' +
+                    'style="transition: stroke-dashoffset 0.8s cubic-bezier(0.22,0.61,0.36,1) '+animDelay+'ms;" />';
+
+                // Calculate label position (midpoint of segment arc)
+                var midFrac = offset + frac / 2;
+                var midAngle = midFrac * 360 - 90;
+                var midRad = midAngle * Math.PI / 180;
+                var labelR = R + strokeW/2 + 30;
+                var lx = cx + labelR * Math.cos(midRad);
+                var ly = cy + labelR * Math.sin(midRad);
+                var edgeX = cx + (R + strokeW/2 + 4) * Math.cos(midRad);
+                var edgeY = cy + (R + strokeW/2 + 4) * Math.sin(midRad);
+                var pct = ((seg.value / total) * 100).toFixed(1);
+
+                labelData.push({ name: seg.name, pct: pct, value: seg.value, color: color, lx: lx, ly: ly, edgeX: edgeX, edgeY: edgeY, midRad: midRad, frac: frac });
+
+                offset += frac + (gapDeg / 360);
+            });
+
+            // === Rotating scan line (radar sweep) ===
+            svgContent += '<g class="hud-scan-group">' +
+                '<line x1="'+cx+'" y1="'+cy+'" x2="'+cx+'" y2="'+(cy - outerR - 10)+'" ' +
+                'stroke="rgba(197,249,85,0.35)" stroke-width="1.5" filter="url(#scanGlow)" />' +
+                '<circle cx="'+cx+'" cy="'+(cy - outerR - 10)+'" r="2" fill="rgba(197,249,85,0.5)" />' +
+                '</g>';
+
+            // Draw leader lines and labels (only for segments > 3%)
+            labelData.forEach(function(ld) {
+                if (ld.frac < 0.03) return;
+                var isRight = ld.lx > cx;
+                var endX = isRight ? ld.lx + 40 : ld.lx - 40;
+                var anchor = isRight ? "start" : "end";
+
+                // Dot at the edge connection point
+                svgContent += '<circle cx="'+ld.edgeX.toFixed(1)+'" cy="'+ld.edgeY.toFixed(1)+'" r="2.5" ' +
+                    'fill="'+ld.color+'" opacity="0.7" filter="url(#ringGlow)" />';
+
+                // Leader line
+                svgContent += '<line x1="'+ld.edgeX.toFixed(1)+'" y1="'+ld.edgeY.toFixed(1)+'" ' +
+                    'x2="'+ld.lx.toFixed(1)+'" y2="'+ld.ly.toFixed(1)+'" ' +
+                    'stroke="'+ld.color+'" stroke-width="1" opacity="0.45" />';
+                svgContent += '<line x1="'+ld.lx.toFixed(1)+'" y1="'+ld.ly.toFixed(1)+'" ' +
+                    'x2="'+endX.toFixed(1)+'" y2="'+ld.ly.toFixed(1)+'" ' +
+                    'stroke="'+ld.color+'" stroke-width="1" opacity="0.45" />';
+
+                // Dot at the elbow point
+                svgContent += '<circle cx="'+ld.lx.toFixed(1)+'" cy="'+ld.ly.toFixed(1)+'" r="2" ' +
+                    'fill="'+ld.color+'" opacity="0.6" />';
+
+                // Small terminal dot at end of horizontal line
+                svgContent += '<circle cx="'+endX.toFixed(1)+'" cy="'+ld.ly.toFixed(1)+'" r="1.5" ' +
+                    'fill="'+ld.color+'" opacity="0.5" />';
+
+                // Label text
+                var textX = isRight ? endX + 6 : endX - 6;
+                svgContent += '<text x="'+textX.toFixed(1)+'" y="'+(ld.ly - 2).toFixed(1)+'" ' +
+                    'fill="'+ld.color+'" font-size="11" font-weight="600" ' +
+                    'font-family="SF Mono, Fira Code, monospace" text-anchor="'+anchor+'" ' +
+                    'opacity="0.9">'+ld.name+'</text>';
+                svgContent += '<text x="'+textX.toFixed(1)+'" y="'+(ld.ly + 12).toFixed(1)+'" ' +
+                    'fill="rgba(255,255,255,0.5)" font-size="10" ' +
+                    'font-family="SF Mono, Fira Code, monospace" text-anchor="'+anchor+'">' +
+                    ld.value.toLocaleString()+' ('+ld.pct+'%)</text>';
+            });
+
+            svg.innerHTML = svgContent;
+
+            if (animate) {
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        svg.querySelectorAll(".donut-seg").forEach(function(seg) {
+                            seg.setAttribute("stroke-dashoffset", "0");
+                        });
+                    });
+                });
+            }
+        }
+
         function renderBannerStats(data) {
-            var totalViews = data.reduce(function(s,d){return s+(d.views||0);}, 0);
-            var totalKols = new Set(data.map(function(d){return d.kol;})).size;
-            var totalContent = data.length;
-            animateCounter(document.getElementById("bannerViews"), totalViews, 1200, formatViewsBanner);
-            animateCounter(document.getElementById("bannerKols"), totalKols, 1000, function(n){return n.toLocaleString();});
-            animateCounter(document.getElementById("bannerContent"), totalContent, 1000, function(n){return n.toLocaleString();});
+            renderDonutChart(data, true);
         }
 
         function updateStats() {
-            renderBannerStats(filteredData);
+            renderDonutChart(filteredData, true);
         }
+
+        document.getElementById("donutTabs").addEventListener("click", function(e) {
+            var tab = e.target.closest(".donut-tab");
+            if (!tab || tab.classList.contains("active")) return;
+            document.querySelectorAll(".donut-tab").forEach(function(t){ t.classList.remove("active"); });
+            tab.classList.add("active");
+            activeDonutTab = tab.dataset.tab;
+            renderDonutChart(filteredData, true);
+        });
 
         window.addEventListener("scroll", () => { if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 400)) loadMore(); });
 
