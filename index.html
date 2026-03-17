@@ -89,7 +89,8 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .search-bar { flex: 1; max-width: 480px; position: relative; }
+        .search-bar { flex: 1; max-width: 480px; position: relative; transition: opacity 0.3s; }
+        body.on-dashboard .search-bar { opacity: 0; pointer-events: none; }
         .search-bar input {
             width: 100%; padding: 10px 16px 10px 40px;
             background: rgba(255,255,255,0.04);
@@ -404,7 +405,7 @@
             max-width: 1600px; margin: 0 auto; padding: 20px 40px 4px;
         }
         .donut-section {
-            background: radial-gradient(ellipse at center, rgba(12,16,12,0.95) 0%, rgba(6,6,8,0.98) 100%);
+            background: radial-gradient(ellipse at center, rgba(20,22,20,0.95) 0%, rgba(15,15,17,0.98) 100%);
             border: 1px solid rgba(197,249,85,0.1);
             border-radius: var(--radius-lg);
             padding: 28px 32px;
@@ -586,10 +587,113 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+        /* ===== View System ===== */
+        .view {
+            display: none;
+        }
+        .view.active {
+            display: block;
+            animation: viewFadeIn 0.4s ease forwards;
+        }
+        @keyframes viewFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard view - full landing page */
+        #dashboard-view {
+            position: relative; min-height: 100vh; overflow: hidden;
+        }
+        .dashboard-bg-mosaic {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-wrap: wrap;
+            z-index: 0;
+            opacity: 0.25;
+        }
+        .dashboard-bg-mosaic img {
+            width: 120px; height: 90px;
+            object-fit: cover;
+            display: block;
+            flex-shrink: 0;
+        }
+        .dashboard-bg-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at center, transparent 0%, rgba(17,17,17,0.6) 50%, rgba(17,17,17,0.95) 100%),
+                linear-gradient(180deg, rgba(17,17,17,0.7) 0%, transparent 25%, transparent 75%, rgba(17,17,17,0.8) 100%);
+            z-index: 1;
+        }
+        #dashboard-view .stats-banner {
+            max-width: 1200px; margin: 0 auto; padding: 60px 40px 40px;
+            position: relative; z-index: 2;
+        }
+        #dashboard-view .dashboard-title {
+            text-align: center; margin-bottom: 32px;
+        }
+        #dashboard-view .dashboard-title h1 {
+            font-size: 52px; font-weight: 800; color: var(--label-title);
+            margin-bottom: 10px; letter-spacing: -0.5px;
+        }
+        #dashboard-view .dashboard-title h1 span {
+            background: var(--gradient-feature);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        #dashboard-view .dashboard-title p {
+            font-size: 18px; color: var(--label-soft); font-weight: 400;
+        }
+        #dashboard-view .donut-section {
+            padding: 40px 40px;
+        }
+        #dashboard-view .donut-chart-area {
+            min-height: 550px;
+        }
+        #dashboard-view .donut-svg-wrap {
+            max-width: 1000px;
+        }
+        #dashboard-view .donut-center-number {
+            font-size: 52px;
+        }
+        #dashboard-view .dashboard-hint {
+            text-align: center; margin-top: 24px;
+            font-size: 13px; color: var(--label-muted);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            letter-spacing: 0.5px;
+            animation: hud-flicker 4s ease-in-out infinite;
+        }
+
+        /* Clickable donut segments */
+        .donut-seg-clickable { cursor: pointer; transition: opacity 0.2s ease; }
+        .donut-seg-clickable:hover { opacity: 0.75; }
+        .donut-label-clickable { cursor: pointer; }
+        .donut-label-clickable:hover { opacity: 0.8; }
+
+        /* Gallery view back button */
+        .back-to-dashboard {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px; margin: 16px 40px 0;
+            background: rgba(197,249,85,0.08); border: 1px solid rgba(197,249,85,0.2);
+            border-radius: 999px; color: var(--accent-base);
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            font-family: inherit; transition: var(--transition);
+        }
+        .back-to-dashboard:hover {
+            background: rgba(197,249,85,0.15); border-color: rgba(197,249,85,0.35);
+        }
+        .back-to-dashboard svg { width: 14px; height: 14px; }
+
+        @media (max-width: 768px) {
+            #dashboard-view .stats-banner { padding: 30px 16px 20px; }
+            #dashboard-view .dashboard-title h1 { font-size: 28px; }
+            #dashboard-view .donut-chart-area { min-height: 280px; }
+            #dashboard-view .donut-center-number { font-size: 32px; }
+            .back-to-dashboard { margin: 12px 16px 0; }
+        }
     </style>
     <script async src="//www.instagram.com/embed.js"></script>
 </head>
-<body>
+<body class="on-dashboard">
     <header class="header">
         <div class="header-inner">
             <a class="logo" href="https://www.meshy.ai" target="_blank" rel="noopener noreferrer">
@@ -603,86 +707,103 @@
         </div>
     </header>
 
-    <div class="filters-section">
-        <div class="filters-inner">
-            <div class="filters-row">
-                <span class="filter-section-label">Platform</span>
-                <div class="filter-chips-scroll no-fade">
-                    <button class="filter-chip" data-platform="instagram">Instagram</button>
-                    <button class="filter-chip" data-platform="youtube-shorts">YT Shorts</button>
-                    <button class="filter-chip" data-platform="youtube-long">YT Long</button>
-                    <button class="filter-chip" data-platform="tiktok">TikTok</button>
-                    <button class="filter-chip" data-platform="twitter">Twitter/X</button>
-                    <button class="filter-chip" data-platform="facebook">Facebook</button>
-                    <button class="filter-chip" data-platform="linkedin">LinkedIn</button>
+    <!-- ===== DASHBOARD VIEW ===== -->
+    <div id="dashboard-view" class="view active">
+        <div class="dashboard-bg-mosaic" id="dashboardBgMosaic"></div>
+        <div class="dashboard-bg-overlay"></div>
+        <div class="stats-banner">
+            <div class="dashboard-title">
+                <h1><span>Meshy</span> Gallery</h1>
+                <p>Click on any segment to explore the gallery</p>
+            </div>
+            <div class="donut-section">
+                <div class="hud-corner hud-corner--tl"></div>
+                <div class="hud-corner hud-corner--tr"></div>
+                <div class="hud-corner hud-corner--bl"></div>
+                <div class="hud-corner hud-corner--br"></div>
+                <div class="hud-text hud-text--tl">SYS_STATUS: ONLINE</div>
+                <div class="hud-text hud-text--tr">ANALYSIS_CORE_V3.1</div>
+                <div class="hud-text hud-text--bl">RENDER_ENGINE: ACTIVE</div>
+                <div class="hud-text hud-text--br">DATA_STREAM: ACTIVE</div>
+                <div class="donut-tabs" id="donutTabs">
+                    <button class="donut-tab active" data-tab="category">Category Views</button>
+                    <button class="donut-tab" data-tab="platform">Platform Distribution</button>
+                    <button class="donut-tab" data-tab="language">Language Analytics</button>
                 </div>
-                <button class="sort-btn" id="sortBtn">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>
-                    Sort by Views
-                </button>
-            </div>
-            <div class="filters-row">
-                <span class="filter-section-label">Language</span>
-                <div class="filter-chips-scroll">
-                    <button class="filter-chip" data-lang="en">English</button>
-                    <button class="filter-chip" data-lang="ko">Korean</button>
-                    <button class="filter-chip" data-lang="ja">Japanese</button>
-                    <button class="filter-chip" data-lang="fr">French</button>
-                    <button class="filter-chip" data-lang="pt">Portuguese</button>
-                    <button class="filter-chip" data-lang="hi">Hindi</button>
-                    <button class="filter-chip" data-lang="es">Spanish</button>
-                    <button class="filter-chip" data-lang="it">Italian</button>
-                    <button class="filter-chip" data-lang="de">German</button>
-                    <button class="filter-chip" data-lang="tr">Turkish</button>
-                    <button class="filter-chip" data-lang="zh">Chinese</button>
-                </div>
-            </div>
-            <div class="filters-row">
-                <span class="filter-section-label">Ad Rights</span>
-                <div class="filter-chips-scroll no-fade">
-                    <button class="filter-chip" data-ad="igPartner">IG Partnership</button>
-                    <button class="filter-chip" data-ad="ttSpark">TT Spark Ads</button>
-                    <button class="filter-chip" data-ad="ytbAds">YTB Ads</button>
-                    <button class="filter-chip" data-ad="adUpload">Upload Rights</button>
-                </div>
-            </div>
-            <div class="filters-row">
-                <span class="filter-section-label">Category</span>
-                <div class="filter-chips-scroll" id="categoryFilters"></div>
-            </div>
-        </div>
-    </div>
-    <div class="active-filters-summary" id="activeFiltersSummary" style="display:none"></div>
-
-    <div class="stats-banner">
-        <div class="donut-section">
-            <div class="hud-corner hud-corner--tl"></div>
-            <div class="hud-corner hud-corner--tr"></div>
-            <div class="hud-corner hud-corner--bl"></div>
-            <div class="hud-corner hud-corner--br"></div>
-            <div class="hud-text hud-text--tl">SYS_STATUS: ONLINE</div>
-            <div class="hud-text hud-text--tr">ANALYSIS_CORE_V3.1</div>
-            <div class="hud-text hud-text--bl">RENDER_ENGINE: ACTIVE</div>
-            <div class="hud-text hud-text--br">DATA_STREAM: ACTIVE</div>
-            <div class="donut-tabs" id="donutTabs">
-                <button class="donut-tab active" data-tab="category">Category Views</button>
-                <button class="donut-tab" data-tab="platform">Platform Distribution</button>
-                <button class="donut-tab" data-tab="language">Language Analytics</button>
-            </div>
-            <div class="donut-chart-area">
-                <div class="donut-svg-wrap">
-                    <svg id="donutSvg" viewBox="0 0 700 440"></svg>
-                    <div class="donut-center-label">
-                        <div class="donut-center-number" id="donutCenterNum">0</div>
-                        <div class="donut-center-text" id="donutCenterText">VIEWS</div>
+                <div class="donut-chart-area">
+                    <div class="donut-svg-wrap">
+                        <svg id="donutSvg" viewBox="0 0 700 440"></svg>
+                        <div class="donut-center-label">
+                            <div class="donut-center-number" id="donutCenterNum">0</div>
+                            <div class="donut-center-text" id="donutCenterText">VIEWS</div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="dashboard-hint">[ CLICK ANY SEGMENT TO EXPLORE ]</div>
         </div>
     </div>
 
-    <div class="masonry-container">
-        <div class="masonry" id="masonryGrid"></div>
+    <!-- ===== GALLERY VIEW ===== -->
+    <div id="gallery-view" class="view">
+        <button class="back-to-dashboard" id="backToDashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Back to Dashboard
+        </button>
+        <div class="filters-section">
+            <div class="filters-inner">
+                <div class="filters-row">
+                    <span class="filter-section-label">Platform</span>
+                    <div class="filter-chips-scroll no-fade">
+                        <button class="filter-chip" data-platform="instagram">Instagram</button>
+                        <button class="filter-chip" data-platform="youtube-shorts">YT Shorts</button>
+                        <button class="filter-chip" data-platform="youtube-long">YT Long</button>
+                        <button class="filter-chip" data-platform="tiktok">TikTok</button>
+                        <button class="filter-chip" data-platform="twitter">Twitter/X</button>
+                        <button class="filter-chip" data-platform="facebook">Facebook</button>
+                        <button class="filter-chip" data-platform="linkedin">LinkedIn</button>
+                    </div>
+                    <button class="sort-btn" id="sortBtn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>
+                        Sort by Views
+                    </button>
+                </div>
+                <div class="filters-row">
+                    <span class="filter-section-label">Language</span>
+                    <div class="filter-chips-scroll">
+                        <button class="filter-chip" data-lang="en">English</button>
+                        <button class="filter-chip" data-lang="ko">Korean</button>
+                        <button class="filter-chip" data-lang="ja">Japanese</button>
+                        <button class="filter-chip" data-lang="fr">French</button>
+                        <button class="filter-chip" data-lang="pt">Portuguese</button>
+                        <button class="filter-chip" data-lang="hi">Hindi</button>
+                        <button class="filter-chip" data-lang="es">Spanish</button>
+                        <button class="filter-chip" data-lang="it">Italian</button>
+                        <button class="filter-chip" data-lang="de">German</button>
+                        <button class="filter-chip" data-lang="tr">Turkish</button>
+                        <button class="filter-chip" data-lang="zh">Chinese</button>
+                    </div>
+                </div>
+                <div class="filters-row">
+                    <span class="filter-section-label">Ad Rights</span>
+                    <div class="filter-chips-scroll no-fade">
+                        <button class="filter-chip" data-ad="igPartner">IG Partnership</button>
+                        <button class="filter-chip" data-ad="ttSpark">TT Spark Ads</button>
+                        <button class="filter-chip" data-ad="ytbAds">YTB Ads</button>
+                        <button class="filter-chip" data-ad="adUpload">Upload Rights</button>
+                    </div>
+                </div>
+                <div class="filters-row">
+                    <span class="filter-section-label">Category</span>
+                    <div class="filter-chips-scroll" id="categoryFilters"></div>
+                </div>
+            </div>
+        </div>
+        <div class="active-filters-summary" id="activeFiltersSummary" style="display:none"></div>
+
+        <div class="masonry-container">
+            <div class="masonry" id="masonryGrid"></div>
+        </div>
     </div>
 
     <div class="modal-overlay" id="modalOverlay">
@@ -1290,6 +1411,10 @@
                 var innerCircum = 2 * Math.PI * innerCompR;
                 var innerDash = frac * innerCircum;
                 var innerGap = innerCircum - innerDash;
+
+                // Wrap arcs in a clickable group
+                svgContent += '<g class="donut-seg-clickable" data-seg-name="'+seg.name.replace(/"/g,'&quot;')+'" data-seg-tab="'+activeDonutTab+'">';
+
                 svgContent += '<circle cx="'+cx+'" cy="'+cy+'" r="'+innerCompR.toFixed(1)+'" ' +
                     'fill="none" stroke="'+color+'" stroke-width="3" opacity="0.45" ' +
                     'stroke-dasharray="'+innerDash.toFixed(2)+' '+innerGap.toFixed(2)+'" ' +
@@ -1309,6 +1434,8 @@
                     'transform="rotate('+rotDeg.toFixed(2)+' '+cx+' '+cy+')" ' +
                     'class="donut-seg" ' +
                     'style="transition: stroke-dashoffset 0.8s cubic-bezier(0.22,0.61,0.36,1) '+animDelay+'ms;" />';
+
+                svgContent += '</g>';
 
                 // Calculate label position (midpoint of segment arc)
                 var midFrac = offset + frac / 2;
@@ -1360,8 +1487,9 @@
                 svgContent += '<circle cx="'+endX.toFixed(1)+'" cy="'+ld.ly.toFixed(1)+'" r="1.5" ' +
                     'fill="'+ld.color+'" opacity="0.5" />';
 
-                // Label text
+                // Label text - wrapped in clickable group
                 var textX = isRight ? endX + 6 : endX - 6;
+                svgContent += '<g class="donut-label-clickable" data-seg-name="'+ld.name.replace(/"/g,'&quot;')+'" data-seg-tab="'+activeDonutTab+'">';
                 svgContent += '<text x="'+textX.toFixed(1)+'" y="'+(ld.ly - 2).toFixed(1)+'" ' +
                     'fill="'+ld.color+'" font-size="11" font-weight="600" ' +
                     'font-family="SF Mono, Fira Code, monospace" text-anchor="'+anchor+'" ' +
@@ -1370,9 +1498,19 @@
                     'fill="rgba(255,255,255,0.5)" font-size="10" ' +
                     'font-family="SF Mono, Fira Code, monospace" text-anchor="'+anchor+'">' +
                     ld.value.toLocaleString()+' ('+ld.pct+'%)</text>';
+                svgContent += '</g>';
             });
 
             svg.innerHTML = svgContent;
+
+            // Attach click handlers to donut segments and labels
+            svg.querySelectorAll('.donut-seg-clickable, .donut-label-clickable').forEach(function(el) {
+                el.addEventListener('click', function() {
+                    var segName = this.getAttribute('data-seg-name');
+                    var segTab = this.getAttribute('data-seg-tab');
+                    navigateToGallery(segTab, segName);
+                });
+            });
 
             if (animate) {
                 requestAnimationFrame(function() {
@@ -1390,8 +1528,75 @@
         }
 
         function updateStats() {
-            renderDonutChart(filteredData, true);
+            renderDonutChart(allData, true);
         }
+
+        /* ===== View Navigation System ===== */
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(function(v) {
+                v.classList.remove('active');
+            });
+            var target = document.getElementById(viewId);
+            if (target) {
+                target.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            if (viewId === 'dashboard-view') {
+                document.body.classList.add('on-dashboard');
+            } else {
+                document.body.classList.remove('on-dashboard');
+            }
+        }
+
+        function navigateToGallery(tab, segmentName) {
+            // Clear all existing filters first
+            selectedPlatforms.clear(); selectedLangs.clear(); selectedCategories.clear(); selectedAdRights.clear();
+            syncChipState("[data-platform]", selectedPlatforms);
+            syncChipState("[data-lang]", selectedLangs);
+            syncChipState("[data-ad]", selectedAdRights);
+            syncCategoryChipState();
+
+            if (tab === "category") {
+                // Set category filter
+                selectedCategories.add(segmentName);
+                syncCategoryChipState();
+            } else if (tab === "platform") {
+                // Map donut platform names to filter values
+                if (segmentName === "YouTube") {
+                    selectedPlatforms.add("youtube-shorts");
+                    selectedPlatforms.add("youtube-long");
+                } else if (segmentName === "Instagram") {
+                    selectedPlatforms.add("instagram");
+                } else if (segmentName === "TikTok") {
+                    selectedPlatforms.add("tiktok");
+                } else if (segmentName === "Other") {
+                    selectedPlatforms.add("twitter");
+                    selectedPlatforms.add("facebook");
+                    selectedPlatforms.add("linkedin");
+                }
+                syncChipState("[data-platform]", selectedPlatforms);
+            } else if (tab === "language") {
+                // Map display language name back to lang code
+                var langCode = null;
+                for (var code in langLabels) {
+                    if (langLabels[code] === segmentName) { langCode = code; break; }
+                }
+                if (langCode) {
+                    selectedLangs.add(langCode);
+                    syncChipState("[data-lang]", selectedLangs);
+                }
+            }
+
+            applyFilters();
+            showView('gallery-view');
+        }
+
+        // Back button
+        document.getElementById("backToDashboard").addEventListener("click", function() {
+            showView('dashboard-view');
+            // Re-render dashboard donut with all data
+            renderDonutChart(allData, true);
+        });
 
         document.getElementById("donutTabs").addEventListener("click", function(e) {
             var tab = e.target.closest(".donut-tab");
@@ -1399,7 +1604,7 @@
             document.querySelectorAll(".donut-tab").forEach(function(t){ t.classList.remove("active"); });
             tab.classList.add("active");
             activeDonutTab = tab.dataset.tab;
-            renderDonutChart(filteredData, true);
+            renderDonutChart(allData, true);
         });
 
         window.addEventListener("scroll", () => { if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 400)) loadMore(); });
@@ -1448,6 +1653,23 @@
         buildCategoryFilters();
         setupEmbedHover();
         applyFilters();
+
+        // Build dashboard background mosaic from thumbnails
+        (function() {
+            var mosaic = document.getElementById('dashboardBgMosaic');
+            if (!mosaic) return;
+            var thumbs = allData.filter(function(d) { return d.thumb; }).map(function(d) { return d.thumb; });
+            // Shuffle
+            for (var i = thumbs.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = thumbs[i]; thumbs[i] = thumbs[j]; thumbs[j] = tmp;
+            }
+            var html = '';
+            thumbs.forEach(function(t) {
+                html += '<img src="' + t + '" loading="lazy" alt="">';
+            });
+            mosaic.innerHTML = html;
+        })();
     </script>
 </body>
 </html>
