@@ -1,0 +1,4 @@
+bitable_raw.json
+.DS_Store
+__pycache__/
+*.pyc

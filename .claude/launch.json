@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "content-library",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8080", "--directory", "/Users/miaxinyao/Downloads/kol-code-only/kol-content-library-main"],
+      "port": 8080
+    }
+  ]
+}
