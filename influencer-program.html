@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meshy Influencer Program</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-strong: #0D0D0D;
+            --bg-base: #111111;
+            --bg-sub: #161616;
+            --bg-base-hover: #1e1e1e;
+            --bg-shade: #252525;
+            --bg-border: #2a2a2a;
+            --bg-border-strong: #3a3a3a;
+            --bg-translucent: rgba(255,255,255,0.04);
+            --bg-translucent-strong: rgba(255,255,255,0.08);
+            --label-title: #ffffff;
+            --label-base: #dedede;
+            --label-soft: #e8e8e8;
+            --label-muted: #d0d0d0;
+            --label-faint: #b0b0b0;
+            --accent-base: #c5f955;
+            --accent-base-hover: #a8e328;
+            --accent-highlight: #dcfa9d;
+            --accent-bg: rgba(197,249,85,0.12);
+            --accent-bg-hover: rgba(197,249,85,0.18);
+            --accent-secondary: rgba(197,249,85,0.60);
+            --accent-label: #000000;
+            --accent-support-base: #ff3e8f;
+            --accent-support-highlight: #ff97c2;
+            --gradient-feature: linear-gradient(90deg, #c5f955, #ff97c2);
+            --shadow-sm: 0px 4px 8px rgba(0,0,0,0.25), 0px 1px 4px rgba(0,0,0,0.15);
+            --shadow-md: 0 8px 32px rgba(0,0,0,0.3);
+            --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+            --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
+            --radius-xl: 16px; --radius-2xl: 22px; --radius-3xl: 28px;
+            --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+            --transition: all 0.3s var(--ease-out-quart);
+        }
+
+        body {
+            background: var(--bg-base);
+            color: var(--label-base);
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            font-feature-settings: "liga" 0;
+        }
+        body::before {
+            content: ""; position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat; background-size: 180px 180px;
+        }
+
+        /* Header */
+        .header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(13,13,13,0.85);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 0 40px;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+        .header-inner {
+            max-width: 1200px; margin: 0 auto;
+            display: flex; align-items: center; height: 72px; gap: 24px;
+        }
+        .logo {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 17px; font-weight: 600; white-space: nowrap;
+            color: var(--accent-base); text-decoration: none;
+        }
+        .logo-img { width: 36px; height: 36px; border-radius: var(--radius-lg); }
+        .logo-text-accent {
+            background: var(--gradient-feature);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .back-link {
+            margin-left: auto;
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 18px; border-radius: 999px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--label-soft); font-size: 13px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s ease; text-decoration: none;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.08); color: var(--label-title); }
+        .back-link svg { width: 14px; height: 14px; }
+
+        /* Hero */
+        .hero {
+            position: relative; overflow: hidden;
+            padding: 80px 40px 60px; text-align: center;
+            background: radial-gradient(ellipse at 50% 0%, rgba(197,249,85,0.06) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 100%, rgba(255,62,143,0.04) 0%, transparent 50%);
+        }
+        .hero::before {
+            content: ""; position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+            width: 800px; height: 800px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(197,249,85,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px; border-radius: 999px;
+            background: var(--accent-bg); border: 1px solid rgba(197,249,85,0.25);
+            font-size: 12px; font-weight: 600; color: var(--accent-base);
+            margin-bottom: 24px; letter-spacing: 0.5px;
+        }
+        .hero-badge svg { width: 14px; height: 14px; }
+        .hero h1 {
+            font-size: 56px; font-weight: 800; letter-spacing: -1.5px;
+            line-height: 1.1; margin-bottom: 20px; color: var(--label-title);
+            max-width: 800px; margin-left: auto; margin-right: auto;
+        }
+        .hero h1 span {
+            background: var(--gradient-feature);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero p {
+            font-size: 18px; color: var(--label-muted); line-height: 1.7;
+            max-width: 600px; margin: 0 auto 32px;
+        }
+        .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .btn-primary {
+            padding: 14px 32px; background: var(--accent-base); color: var(--accent-label);
+            border: none; border-radius: var(--radius-lg); font-size: 15px; font-weight: 700;
+            cursor: pointer; transition: var(--transition); font-family: inherit;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary:hover { background: var(--accent-base-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(197,249,85,0.2); }
+        .btn-secondary {
+            padding: 14px 32px; background: var(--bg-shade); color: var(--label-base);
+            border: 1px solid var(--bg-border-strong); border-radius: var(--radius-lg);
+            font-size: 15px; font-weight: 600; cursor: pointer; transition: var(--transition); font-family: inherit;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-secondary:hover { background: var(--bg-base-hover); border-color: var(--accent-base); color: var(--accent-base); }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+            max-width: 1200px; margin: 0 auto;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .stat-item {
+            text-align: center; padding: 32px 20px;
+            border-right: 1px solid rgba(255,255,255,0.06);
+        }
+        .stat-item:last-child { border-right: none; }
+        .stat-number {
+            font-size: 36px; font-weight: 800; color: var(--accent-base);
+            font-variant-numeric: tabular-nums; line-height: 1;
+        }
+        .stat-label {
+            font-size: 12px; color: var(--label-muted); margin-top: 8px;
+            text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500;
+        }
+
+        /* Section */
+        .section {
+            max-width: 1200px; margin: 0 auto; padding: 80px 40px;
+        }
+        .section-label {
+            display: inline-block; font-size: 11px; font-weight: 700;
+            color: var(--accent-base); text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .section h2 {
+            font-size: 36px; font-weight: 800; color: var(--label-title);
+            letter-spacing: -0.5px; margin-bottom: 16px; line-height: 1.2;
+        }
+        .section-subtitle {
+            font-size: 16px; color: var(--label-muted); line-height: 1.7;
+            max-width: 600px; margin-bottom: 48px;
+        }
+
+        /* How It Works */
+        .steps-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+        }
+        .step-card {
+            background: var(--bg-sub); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-2xl); padding: 32px 28px;
+            transition: var(--transition); position: relative; overflow: hidden;
+        }
+        .step-card:hover {
+            border-color: rgba(197,249,85,0.25); transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+        .step-number {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: var(--accent-bg); border: 1px solid rgba(197,249,85,0.25);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 800; color: var(--accent-base);
+            margin-bottom: 20px;
+        }
+        .step-card h3 {
+            font-size: 18px; font-weight: 700; color: var(--label-title);
+            margin-bottom: 10px;
+        }
+        .step-card p {
+            font-size: 14px; color: var(--label-muted); line-height: 1.7;
+        }
+
+        /* Benefits */
+        .benefits-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+        }
+        .benefit-card {
+            background: var(--bg-sub); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-2xl); padding: 28px;
+            display: flex; gap: 20px; transition: var(--transition);
+        }
+        .benefit-card:hover {
+            border-color: rgba(255,255,255,0.18); transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+        .benefit-icon {
+            width: 52px; height: 52px; border-radius: var(--radius-xl);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; flex-shrink: 0;
+        }
+        .benefit-icon.icon-money { background: rgba(197,249,85,0.12); }
+        .benefit-icon.icon-grow { background: rgba(99,102,241,0.12); }
+        .benefit-icon.icon-access { background: rgba(255,62,143,0.12); }
+        .benefit-icon.icon-community { background: rgba(255,210,0,0.12); }
+        .benefit-icon.icon-support { background: rgba(0,212,255,0.12); }
+        .benefit-icon.icon-tools { background: rgba(255,140,0,0.12); }
+        .benefit-content h3 {
+            font-size: 16px; font-weight: 700; color: var(--label-title);
+            margin-bottom: 6px;
+        }
+        .benefit-content p {
+            font-size: 13px; color: var(--label-muted); line-height: 1.6;
+        }
+
+        /* Tiers */
+        .tiers-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+        }
+        .tier-card {
+            background: var(--bg-sub); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-2xl); padding: 32px 28px;
+            text-align: center; transition: var(--transition); position: relative;
+        }
+        .tier-card.featured {
+            border-color: rgba(197,249,85,0.35);
+            background: linear-gradient(to bottom, rgba(197,249,85,0.04), var(--bg-sub));
+        }
+        .tier-card.featured::before {
+            content: "MOST POPULAR";
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            padding: 4px 14px; border-radius: 999px;
+            background: var(--accent-base); color: var(--accent-label);
+            font-size: 10px; font-weight: 800; letter-spacing: 1px;
+        }
+        .tier-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .tier-name {
+            font-size: 14px; font-weight: 700; color: var(--label-muted);
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+        }
+        .tier-commission {
+            font-size: 42px; font-weight: 800; color: var(--accent-base); line-height: 1;
+        }
+        .tier-commission-label {
+            font-size: 12px; color: var(--label-muted); margin: 4px 0 20px;
+        }
+        .tier-features { list-style: none; text-align: left; }
+        .tier-features li {
+            font-size: 13px; color: var(--label-soft); padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .tier-features li:last-child { border-bottom: none; }
+        .tier-check {
+            width: 18px; height: 18px; border-radius: 50%;
+            background: rgba(197,249,85,0.12); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tier-check svg { width: 10px; height: 10px; stroke: var(--accent-base); fill: none; stroke-width: 3; }
+
+        /* Creator Stories */
+        .stories-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+        }
+        .story-card {
+            background: var(--bg-sub); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-2xl); overflow: hidden; transition: var(--transition);
+        }
+        .story-card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-3px); }
+        .story-image {
+            width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block;
+            background: var(--bg-shade);
+        }
+        .story-body { padding: 20px; }
+        .story-kol {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+        }
+        .story-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-base), var(--accent-support-base));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 800; color: var(--accent-label); flex-shrink: 0;
+        }
+        .story-kol-info { display: flex; flex-direction: column; }
+        .story-kol-name { font-size: 14px; font-weight: 600; color: var(--label-title); }
+        .story-kol-role { font-size: 11px; color: var(--label-muted); }
+        .story-body h3 {
+            font-size: 15px; font-weight: 700; color: var(--label-title); margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .story-body p {
+            font-size: 13px; color: var(--label-muted); line-height: 1.6;
+        }
+
+        /* CTA */
+        .cta-section {
+            text-align: center; padding: 80px 40px;
+            background: radial-gradient(ellipse at 50% 50%, rgba(197,249,85,0.06) 0%, transparent 60%);
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .cta-section h2 {
+            font-size: 40px; font-weight: 800; color: var(--label-title);
+            letter-spacing: -0.5px; margin-bottom: 16px;
+        }
+        .cta-section p {
+            font-size: 16px; color: var(--label-muted); margin-bottom: 32px;
+            max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.7;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center; padding: 32px 40px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-size: 12px; color: var(--label-faint);
+        }
+        .footer a { color: var(--accent-base); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero h1 { font-size: 36px; }
+            .hero p { font-size: 16px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid, .tiers-grid, .stories-grid { grid-template-columns: 1fr; }
+            .benefits-grid { grid-template-columns: 1fr; }
+            .section { padding: 60px 20px; }
+        }
+
+        /* Smooth scroll */
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a class="logo" href="index.html#gallery">
+                <img src="logo.png" alt="Meshy" class="logo-img">
+                <span><span class="logo-text-accent">Meshy</span> Gallery</span>
+            </a>
+            <a class="back-link" href="index.html#gallery">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Back to Gallery
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="hero-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Influencer Program
+        </div>
+        <h1>Maximize Your <span>Earnings</span> as a Meshy Influencer</h1>
+        <p>As a Meshy influencer, you'll earn generous commissions while helping your audience discover the power of AI-driven 3D creation.</p>
+        <div class="hero-actions">
+            <a href="#apply" class="btn-primary">Apply Now</a>
+            <a href="#how-it-works" class="btn-secondary">Learn More</a>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-item">
+            <div class="stat-number">57M+</div>
+            <div class="stat-label">Total Views</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">90+</div>
+            <div class="stat-label">Active Creators</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">30%</div>
+            <div class="stat-label">Commission Rate</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">6</div>
+            <div class="stat-label">Platforms</div>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <section class="section" id="how-it-works">
+        <div class="section-label">How It Works</div>
+        <h2>Start Earning in 3 Simple Steps</h2>
+        <div class="section-subtitle">Join our community of creators and start earning commissions by sharing your passion for 3D creation with the world.</div>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h3>Apply & Get Approved</h3>
+                <p>Submit your application with your social media profiles and content samples. Our team reviews applications within 48 hours.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h3>Create & Share</h3>
+                <p>Create authentic content showcasing Meshy's 3D AI tools. Share tutorials, reviews, or creative workflows on your channels.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h3>Earn Commissions</h3>
+                <p>Earn up to 30% recurring commissions for every subscriber that signs up through your unique referral link. Monthly payouts guaranteed.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits -->
+    <section class="section" id="benefits" style="padding-top: 0;">
+        <div class="section-label">Benefits</div>
+        <h2>Why Join Our Program?</h2>
+        <div class="section-subtitle">We provide everything you need to succeed as a Meshy influencer and grow your creative business.</div>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon icon-money">💰</div>
+                <div class="benefit-content">
+                    <h3>Generous Commissions</h3>
+                    <p>Earn up to 30% recurring commissions on every subscription driven through your referral link, with lifetime attribution.</p>
+                </div>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon icon-grow">📈</div>
+                <div class="benefit-content">
+                    <h3>Grow Your Audience</h3>
+                    <p>Get featured in our Gallery, newsletters, and social channels. Amplify your reach across our 500K+ community.</p>
+                </div>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon icon-access">🎨</div>
+                <div class="benefit-content">
+                    <h3>Free Pro Access</h3>
+                    <p>All influencers receive free Meshy Pro subscriptions, including early access to new features and beta tools.</p>
+                </div>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon icon-community">🌟</div>
+                <div class="benefit-content">
+                    <h3>Exclusive Community</h3>
+                    <p>Join a private creator community with direct access to our product team, exclusive events, and networking opportunities.</p>
+                </div>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon icon-support">🛠</div>
+                <div class="benefit-content">
+                    <h3>Dedicated Support</h3>
+                    <p>Get a dedicated partner manager who helps with content strategy, technical questions, and campaign optimization.</p>
+                </div>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon icon-tools">📦</div>
+                <div class="benefit-content">
+                    <h3>Creator Toolkit</h3>
+                    <p>Access branded assets, content templates, and marketing materials designed to help you create high-performing content.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tiers -->
+    <section class="section" style="padding-top: 0;">
+        <div class="section-label">Commission Tiers</div>
+        <h2>Grow With Us</h2>
+        <div class="section-subtitle">The more you create, the more you earn. Unlock higher tiers as your impact grows.</div>
+        <div class="tiers-grid">
+            <div class="tier-card">
+                <div class="tier-name">Starter</div>
+                <div class="tier-commission">15%</div>
+                <div class="tier-commission-label">recurring commission</div>
+                <ul class="tier-features">
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Free Pro subscription</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Unique referral link</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Monthly payouts</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Creator toolkit access</li>
+                </ul>
+            </div>
+            <div class="tier-card featured">
+                <div class="tier-name">Pro Creator</div>
+                <div class="tier-commission">25%</div>
+                <div class="tier-commission-label">recurring commission</div>
+                <ul class="tier-features">
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Everything in Starter</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Featured in Gallery</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Early feature access</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Co-marketing campaigns</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Dedicated partner manager</li>
+                </ul>
+            </div>
+            <div class="tier-card">
+                <div class="tier-name">Ambassador</div>
+                <div class="tier-commission">30%</div>
+                <div class="tier-commission-label">recurring commission</div>
+                <ul class="tier-features">
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Everything in Pro</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Custom landing page</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Quarterly performance bonus</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Product advisory board</li>
+                    <li><span class="tier-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Annual creator retreat</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Creator Stories -->
+    <section class="section" style="padding-top: 0;">
+        <div class="section-label">Creator Stories</div>
+        <h2>Community Spotlight</h2>
+        <div class="section-subtitle">See how creators around the world are using Meshy to build their audience and earn.</div>
+        <div class="stories-grid">
+            <div class="story-card">
+                <img src="earth-blue.jpg" alt="West Edge 3D" class="story-image">
+                <div class="story-body">
+                    <div class="story-kol">
+                        <div class="story-avatar">W</div>
+                        <div class="story-kol-info">
+                            <div class="story-kol-name">West Edge 3D</div>
+                            <div class="story-kol-role">3D Print Service Bureau</div>
+                        </div>
+                    </div>
+                    <h3>How West Edge 3D Expanded Full-Color 3D Printing with Meshy</h3>
+                    <p>West Edge 3D integrates Meshy to complement their physical scanning workflow, generating incredible 3D assets for clients worldwide.</p>
+                </div>
+            </div>
+            <div class="story-card">
+                <img src="earth-dark.jpg" alt="Liga Superbohaterow" class="story-image">
+                <div class="story-body">
+                    <div class="story-kol">
+                        <div class="story-avatar">L</div>
+                        <div class="story-kol-info">
+                            <div class="story-kol-name">Liga Superbohaterow</div>
+                            <div class="story-kol-role">Non-profit Organization</div>
+                        </div>
+                    </div>
+                    <h3>From Children's Drawings to Real Superheroes with Meshy</h3>
+                    <p>Liga Superbohaterow uses Meshy to transform children's superhero drawings into 3D-printed figures, bringing hope to kids fighting cancer.</p>
+                </div>
+            </div>
+            <div class="story-card">
+                <img src="earth-day.jpg" alt="Masa Richard" class="story-image">
+                <div class="story-body">
+                    <div class="story-kol">
+                        <div class="story-avatar">M</div>
+                        <div class="story-kol-info">
+                            <div class="story-kol-name">Masa Richard</div>
+                            <div class="story-kol-role">Hungarian University of Fine Arts</div>
+                        </div>
+                    </div>
+                    <h3>Integrating Meshy for Cross-Disciplinary 3D Art Education</h3>
+                    <p>HUFA uses Meshy's Image-to-3D to blend traditional fine art with digital tools, accelerating 3D art education across disciplines.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section" id="apply">
+        <h2>Ready to Get Started?</h2>
+        <p>Join our growing community of 90+ influencers and start earning today. Applications are reviewed within 48 hours.</p>
+        <div class="hero-actions">
+            <a href="https://www.meshy.ai/affiliates" target="_blank" rel="noopener noreferrer" class="btn-primary">
+                Apply Now
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+            <a href="index.html#gallery" class="btn-secondary">Explore the Gallery</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 <a href="https://www.meshy.ai" target="_blank" rel="noopener noreferrer">Meshy</a> &middot; Influencer Program &middot; <a href="index.html#gallery">Back to Gallery</a></p>
+    </footer>
+</body>
+</html>

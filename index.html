@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meshy Gallery</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -154,14 +154,92 @@
         }
         .filter-chip:hover { color: var(--label-base); background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); }
         .filter-chip.active { background: rgba(197,249,85,0.10); color: var(--accent-base); font-weight: 600; border-color: rgba(197,249,85,0.25); }
-        .sort-btn {
-            display: flex; align-items: center; gap: 6px; padding: 6px 14px;
-            border-radius: 999px; border: 1px solid transparent;
-            background: transparent; color: var(--label-muted); font-size: 13px; font-weight: 450;
-            cursor: pointer; white-space: nowrap; transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-            font-family: inherit; flex-shrink: 0;
+        /* ===== Top Banner Carousel ===== */
+        .top-banner-section {
+            max-width: 1600px; margin: 0 auto; padding: 16px 40px 8px;
         }
-        .sort-btn:hover { color: var(--accent-support-highlight); background: rgba(255,62,143,0.06); border-color: rgba(255,62,143,0.20); }
+        .top-banner-grid {
+            display: grid;
+            grid-template-columns: 2.51fr 1.78fr 1.78fr 1.78fr;
+            gap: 14px;
+        }
+        .top-banner-card {
+            position: relative; border-radius: var(--radius-xl); overflow: hidden;
+            aspect-ratio: 16/9; cursor: pointer;
+            transition: transform 0.3s var(--ease-out-quart), box-shadow 0.3s var(--ease-out-quart);
+            border: 1px solid rgba(255,255,255,0.08); text-decoration: none;
+        }
+        .top-banner-card:first-child { aspect-ratio: 2.51/1; }
+        .top-banner-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.12);
+        }
+        .top-banner-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .top-banner-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.02) 100%);
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 10px;
+        }
+        .top-banner-tag {
+            display: inline-block; width: fit-content;
+            padding: 2px 6px; border-radius: var(--radius-sm);
+            font-size: 7px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.8px; color: #fff; margin-bottom: 3px;
+        }
+        .top-banner-tag.tag-influencer { background: linear-gradient(135deg, #c5f955, #a8e328); color: #000; }
+        .top-banner-tag.tag-community { background: linear-gradient(135deg, #ff3e8f, #ff97c2); color: #fff; }
+        .top-banner-tag.tag-tutorial { background: rgba(99,102,241,0.85); }
+        .top-banner-tag.tag-new { background: linear-gradient(135deg, #ffd200, #ffaa00); color: #000; }
+        .top-banner-title {
+            font-size: 9px; font-weight: 700; color: #fff;
+            line-height: 1.3; letter-spacing: -0.1px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+        }
+        .top-banner-card:hover .top-banner-title { color: var(--accent-base); }
+        @media (max-width: 1200px) { .top-banner-grid { grid-template-columns: 1fr 1fr; } }
+
+        .top5-flex-row {
+            display: flex; gap: 12px; margin-bottom: 12px;
+        }
+        .top5-flex-row:empty { display: none; }
+        .top5-flex-row > .card { flex: 1 1 0; min-width: 0; }
+
+        .sort-group {
+            position: relative; flex-shrink: 0; margin-left: auto;
+        }
+        .sort-trigger {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border-radius: 8px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            color: var(--label-soft); font-size: 12px; font-weight: 500;
+            cursor: pointer; font-family: inherit; white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .sort-trigger:hover { border-color: rgba(255,255,255,0.15); color: var(--label-base); }
+        .sort-trigger.open { border-color: rgba(197,249,85,0.3); color: var(--label-base); }
+        .sort-trigger svg { transition: transform 0.2s ease; }
+        .sort-trigger.open svg { transform: rotate(180deg); }
+        .sort-dropdown {
+            position: absolute; top: calc(100% + 6px); right: 0; z-index: 100;
+            min-width: 160px; padding: 4px;
+            background: var(--bg-sub); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            display: none;
+        }
+        .sort-dropdown.open { display: block; }
+        .sort-option {
+            display: flex; align-items: center; gap: 8px;
+            width: 100%; padding: 8px 12px; border: none; border-radius: 6px;
+            background: transparent; color: var(--label-muted); font-size: 12px; font-weight: 500;
+            cursor: pointer; font-family: inherit; text-align: left;
+            transition: all 0.15s ease;
+        }
+        .sort-option:hover { background: rgba(255,255,255,0.06); color: var(--label-base); }
+        .sort-option.active { color: var(--accent-base); font-weight: 600; }
+        .sort-option .sort-check {
+            width: 14px; font-size: 11px; color: var(--accent-base); opacity: 0;
+        }
+        .sort-option.active .sort-check { opacity: 1; }
 
         .active-filters-summary {
             display: none; flex-wrap: wrap; gap: 6px; padding: 10px 40px;
@@ -179,15 +257,21 @@
 
         /* ===== Masonry Grid ===== */
         .masonry-container { max-width: 1600px; margin: 0 auto; padding: 20px 40px 60px; }
-        .masonry {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+        .top5-row {
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            gap: 8px; margin-bottom: 8px; align-items: start;
         }
-        @media (min-width: 1601px) { .masonry { grid-template-columns: repeat(5, 1fr); } }
-        @media (max-width: 1200px) { .masonry { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 768px) { .masonry { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 480px) { .masonry { grid-template-columns: 1fr; } }
+        @media (max-width: 1200px) { .top5-row { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 768px) { .top5-row { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { .top5-row { grid-template-columns: 1fr; } }
+        .masonry {
+            column-count: 4; column-gap: 8px;
+        }
+        .masonry > .card { break-inside: avoid; margin-bottom: 8px; }
+        @media (min-width: 1601px) { .masonry { column-count: 5; } }
+        @media (max-width: 1200px) { .masonry { column-count: 3; } }
+        @media (max-width: 768px) { .masonry { column-count: 2; } }
+        @media (max-width: 480px) { .masonry { column-count: 1; } }
 
         /* ===== Card (Pinterest-style with thumbnail) ===== */
         .card {
@@ -655,18 +739,18 @@
         #editors-pick-view .pick-empty svg { width: 48px; height: 48px; fill: rgba(255,210,0,0.2); margin-bottom: 16px; }
         #editors-pick-view .pick-empty p { margin-top: 8px; font-size: 13px; color: var(--label-faint); }
         .back-to-dashboard-pick {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 18px; border-radius: 999px;
-            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-            color: var(--label-soft); font-size: 13px; font-weight: 500;
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 999px;
+            background: transparent; border: none;
+            color: var(--label-faint); font-size: 12px; font-weight: 500;
             cursor: pointer; transition: all 0.2s ease;
         }
-        .back-to-dashboard-pick:hover { background: rgba(255,255,255,0.08); color: var(--label-title); }
+        .back-to-dashboard-pick:hover { color: var(--label-title); }
         .back-to-dashboard-pick svg { width: 14px; height: 14px; }
 
         /* ===== Meshy Archives — Museum Gallery ===== */
         #archives-view {
-            min-height: 100vh;
+            min-height: 100vh; position: relative; overflow: hidden;
             background: #080600;
             background-image:
                 radial-gradient(ellipse at 50% 0%, rgba(180,130,20,0.06) 0%, transparent 55%),
@@ -680,21 +764,21 @@
         }
         .mw-header-left { display: flex; flex-direction: column; gap: 6px; }
         .mw-title-row { display: flex; align-items: center; gap: 14px; }
-        .mw-title-icon { width: 28px; height: 28px; stroke: var(--accent-base); flex-shrink: 0; }
+        .mw-title-icon { width: 28px; height: 28px; stroke: #d4a520; flex-shrink: 0; }
         .mw-title {
             font-size: 28px; font-weight: 800; letter-spacing: -0.3px;
-            background: linear-gradient(90deg, var(--accent-base), #a8e063);
+            background: linear-gradient(90deg, #ffd700, #d4a520, #ffd700);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-        .mw-subtitle { font-size: 14px; color: var(--label-soft); margin-left: 38px; line-height: 1.7; }
+        .mw-subtitle { font-size: 14px; color: #c8a84e; margin-left: 38px; line-height: 1.7; }
         .back-from-archives {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 18px; border-radius: 999px;
-            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-            color: var(--label-soft); font-size: 13px; font-weight: 500;
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 999px;
+            background: transparent; border: none;
+            color: var(--label-faint); font-size: 12px; font-weight: 500;
             cursor: pointer; transition: all 0.2s ease;
         }
-        .back-from-archives:hover { background: rgba(255,255,255,0.08); color: var(--label-title); }
+        .back-from-archives:hover { color: var(--label-title); }
         .mw-gallery-wrap {
             padding: 40px 0 60px;
             overflow-x: auto; overflow-y: hidden;
@@ -757,9 +841,23 @@
             box-shadow: inset 0 0 20px rgba(0,0,0,0.98), inset 0 2px 8px rgba(0,0,0,0.9);
             border-radius: 1px;
         }
-        .mw-canvas { position: relative; overflow: hidden; border-radius: 1px; background: #080500; }
+        .mw-canvas { position: relative; overflow: hidden; border-radius: 1px; background: #080500; clip-path: inset(0); }
         .mw-artwork .mw-canvas { min-height: 420px; }
-        .mw-canvas iframe { width: 1px; min-width: 100%; height: 100%; min-height: inherit; border: none; display: block; }
+        .mw-play-btn {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 64px; height: 64px; border-radius: 50%;
+            background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px); transition: all 0.3s ease; pointer-events: none; z-index: 2;
+        }
+        .mw-frame:hover .mw-play-btn { opacity: 0; }
+        .mw-embed-preview {
+            position: absolute; inset: 0; z-index: 3; opacity: 0;
+            transition: opacity 0.3s ease; pointer-events: none;
+        }
+        .mw-embed-preview.active { opacity: 1; pointer-events: auto; }
+        .mw-embed-preview iframe {
+            width: 100%; height: 100%; border: none;
+        }
         .mw-canvas::before {
             content: ''; position: absolute; inset: 0;
             background: linear-gradient(90deg, #080500 25%, #130e00 50%, #080500 75%);
@@ -769,7 +867,7 @@
         .mw-canvas.loaded::before { opacity: 0; }
         @keyframes mw-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .mw-plaque {
-            margin: 12px auto 0; width: 80%; max-width: 260px;
+            margin: 6px auto 0; width: 70%; max-width: 220px;
             background: linear-gradient(175deg, #c8a84e 0%, #a08030 15%, #d4b860 35%, #b89838 50%, #c8a84e 65%, #a08030 85%, #d4b860 100%);
             border: 1px solid #7a6420;
             border-radius: 2px; padding: 6px 14px 7px; text-align: center;
@@ -799,8 +897,9 @@
             display: inline-flex; align-items: center; gap: 3px;
             font-size: 9px; font-weight: 700; color: #3a2800;
             font-family: 'Georgia','Times New Roman',serif;
+            line-height: 1;
         }
-        .mw-plaque-views svg { stroke: #3a2800; width: 10px; height: 10px; }
+        .mw-plaque-views svg { stroke: #3a2800; width: 10px; height: 10px; vertical-align: middle; flex-shrink: 0; }
         .pick-badge {
             position: absolute; top: 44px; right: 10px; z-index: 11;
             background: linear-gradient(135deg, #ffd200, #ffaa00);
@@ -1544,6 +1643,7 @@
             text-align: center; margin-bottom: 32px;
         }
         #dashboard-view .dashboard-title h1 {
+            font-family: 'Figtree', 'Inter', sans-serif;
             font-size: 52px; font-weight: 800; color: var(--label-title);
             margin-bottom: 10px; letter-spacing: -0.5px;
         }
@@ -1583,11 +1683,11 @@
 
         /* Gallery view back button */
         .back-to-dashboard {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 18px; margin: 16px 40px 0;
-            background: rgba(197,249,85,0.08); border: 1px solid rgba(197,249,85,0.2);
-            border-radius: 999px; color: var(--accent-base);
-            font-size: 13px; font-weight: 600; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; margin: 16px 40px 0;
+            background: transparent; border: none;
+            border-radius: 999px; color: var(--label-faint);
+            font-size: 12px; font-weight: 500; cursor: pointer;
             font-family: inherit; transition: var(--transition);
         }
         .back-to-dashboard:hover {
@@ -1595,12 +1695,19 @@
         }
         .back-to-dashboard svg { width: 14px; height: 14px; }
 
-        @media (max-width: 768px) {
-            #dashboard-view .stats-banner { padding: 30px 16px 20px; }
-            #dashboard-view .dashboard-title h1 { font-size: 28px; }
-            #dashboard-view .donut-chart-area { min-height: 280px; }
-            #dashboard-view .donut-center-number { font-size: 32px; }
-            .back-to-dashboard { margin: 12px 16px 0; }
+        /* ===== RESPONSIVE: MacBook Pro (~1440px) ===== */
+        @media (max-width: 1600px) {
+            .masonry { column-count: 4; }
+            .masonry-container { max-width: 100%; padding: 20px 24px 60px; }
+            .filters-inner { max-width: 100%; }
+        }
+        /* ===== RESPONSIVE: 27" Monitor (~2560px) ===== */
+        @media (min-width: 1921px) {
+            .masonry-container { max-width: 2400px; }
+            .masonry { column-count: 6; }
+            .filters-inner { max-width: 2400px; }
+            .pick-view-header, .archive-view-header { max-width: 2400px; }
+            .kol-profile-header { max-width: 2400px; }
         }
     </style>
     <script async src="//www.instagram.com/embed.js"></script>
@@ -1695,7 +1802,9 @@
 
     <!-- ===== MESHY ARCHIVES VIEW ===== -->
     <div id="archives-view" class="view">
-        <div class="mw-header">
+        <div class="dashboard-bg-mosaic view-bg-mosaic" id="archiveBgMosaic"></div>
+        <div class="dashboard-bg-overlay"></div>
+        <div class="mw-header" style="position:relative;z-index:2">
             <div class="mw-header-left">
                 <div class="mw-title-row">
                     <svg class="mw-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
@@ -1705,10 +1814,10 @@
             </div>
             <button class="back-from-archives" id="backFromArchives">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                Back
+                Back to Dashboard
             </button>
         </div>
-        <div class="mw-gallery-wrap">
+        <div class="mw-gallery-wrap" style="position:relative;z-index:2">
             <div class="mw-gallery" id="archivesMasterworks"></div>
         </div>
     </div>
@@ -1747,6 +1856,41 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             Back to Dashboard
         </button>
+
+        <!-- Top Banner Carousel -->
+        <div class="top-banner-section">
+            <div class="top-banner-grid">
+                <a class="top-banner-card" href="influencer-program.html">
+                    <img src="easter-banner.png" alt="Easter Influencer Competition" loading="lazy">
+                    <div class="top-banner-overlay">
+                        <span class="top-banner-tag tag-influencer">INFLUENCER</span>
+                        <div class="top-banner-title">Easter Influencer<br>Competition</div>
+                    </div>
+                </a>
+                <a class="top-banner-card" href="https://www.meshy.ai/discover" target="_blank">
+                    <img src="banner-nano-banana.png" alt="Nano Banana 2" loading="lazy">
+                    <div class="top-banner-overlay">
+                        <span class="top-banner-tag tag-new">TEXT TO IMAGE</span>
+                        <div class="top-banner-title">Nano Banana 2<br>Live Now!</div>
+                    </div>
+                </a>
+                <a class="top-banner-card" href="https://www.meshy.ai/workspace" target="_blank">
+                    <img src="banner-tutorial.png" alt="New Workspace" loading="lazy">
+                    <div class="top-banner-overlay">
+                        <span class="top-banner-tag tag-tutorial">NEW WORKFLOW</span>
+                        <div class="top-banner-title">Step Into Your<br>New Workspace</div>
+                    </div>
+                </a>
+                <a class="top-banner-card" href="influencer-program.html#apply">
+                    <img src="easter-banner.png" alt="Creator Spotlight" loading="lazy">
+                    <div class="top-banner-overlay">
+                        <span class="top-banner-tag tag-community">COMMUNITY</span>
+                        <div class="top-banner-title">Creator Spotlight<br>& Stories</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
         <div class="filters-section">
             <div class="filters-inner">
                 <div class="filters-row">
@@ -1760,10 +1904,17 @@
                         <button class="filter-chip" data-platform="facebook">Facebook</button>
                         <button class="filter-chip" data-platform="linkedin">LinkedIn</button>
                     </div>
-                    <button class="sort-btn" id="sortBtn">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>
-                        Sort by Views
-                    </button>
+                    <div class="sort-group" id="sortGroup">
+                        <div class="sort-trigger" id="sortTrigger">
+                            <span id="sortLabel">Sort by Views</span>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                        <div class="sort-dropdown" id="sortDropdown">
+                            <button class="sort-option active" data-sort="views"><span class="sort-check">✓</span> Views</button>
+                            <button class="sort-option" data-sort="date"><span class="sort-check">✓</span> Date</button>
+                            <button class="sort-option" data-sort="cost"><span class="sort-check">✓</span> Cost</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="filters-row">
                     <span class="filter-section-label">Language</span>
@@ -1822,6 +1973,7 @@
         </div>
 
         <div class="masonry-container">
+            <div class="top5-flex-row" id="top5FlexRow"></div>
             <div class="masonry" id="masonryGrid"></div>
         </div>
     </div>
@@ -2054,11 +2206,13 @@
 
         function renderCards(data, append) {
             const grid = document.getElementById("masonryGrid");
-            if (!append) grid.innerHTML = "";
+            const top5Flex = document.getElementById("top5FlexRow");
+            if (!append) { grid.innerHTML = ""; if (top5Flex) top5Flex.innerHTML = ""; }
             if (data.length === 0 && !append) {
                 grid.innerHTML = '<div class="empty-state"><div class="icon">&#128269;</div><p>No matching content found</p></div>';
                 return;
             }
+            var globalIdx = append ? grid.children.length : 0;
 
             var isFirstBatch = !append;
             data.forEach(function(item, idx) {
@@ -2075,6 +2229,7 @@
 
                 const card = document.createElement("div");
                 card.className = "card";
+                card.setAttribute('data-id', item.id);
                 card._item = item;
 
                 var loadAttr = (isFirstBatch && idx < 16) ? 'loading="eager"' : 'loading="lazy"';
@@ -2128,7 +2283,13 @@
                         '<div class="card-kol-row"><div class="kol-avatar">'+getAvatarContent(item.kol)+'</div><div class="card-kol-name">'+item.kol+'</div></div>' +
                         '<div class="card-meta"><span>'+formatDate(item.date)+'</span><span class="card-meta-total-views">'+formatViews(item.views)+'</span></div></div>';
                 }
-                grid.appendChild(card);
+                // First 5 go to flex row when sorted by views
+                if (currentSort === 'views' && top5Flex && globalIdx < 5 && !append) {
+                    top5Flex.appendChild(card);
+                } else {
+                    grid.appendChild(card);
+                }
+                globalIdx++;
                 // Card-body click → open modal
                 var body = card.querySelector(".card-body");
                 if (body) body.addEventListener("click", (function(it){ return function(){ openModal(it); }; })(item));
@@ -2162,6 +2323,7 @@
                 var ci = card.querySelector(".card-image[data-embed-info]");
                 if (ci) attachEmbedHover(ci);
             });
+            // top5Row removed - all cards in masonry
         }
 
         function openModal(item) {
@@ -2399,8 +2561,9 @@
                 });
             });
             document.getElementById("clearAllFilters").addEventListener("click", () => {
-                selectedPlatforms.clear(); selectedLangs.clear(); selectedCategories.clear(); selectedAdRights.clear();
+                selectedPlatforms.clear(); selectedLangs.clear(); selectedCategories.clear(); selectedAdRights.clear(); selectedMonths.clear();
                 syncChipState("[data-platform]",selectedPlatforms); syncChipState("[data-lang]",selectedLangs); syncChipState("[data-ad]",selectedAdRights);
+                document.querySelectorAll('.filter-chip[data-month]').forEach(c => c.classList.remove('active'));
                 syncCategoryChipState(); applyFilters();
             });
         }
@@ -2497,12 +2660,13 @@
         }
 
         function decorateTop5Cards() {
-            var cards = document.querySelectorAll('#masonryGrid > .card');
+            var allCards = document.querySelectorAll('#top5FlexRow .card, #masonryGrid .card');
             var frameClasses = ['frame-gold', 'frame-silver', 'frame-bronze', 'frame-wood', 'frame-lacquer'];
             // Remove old decorations
-            cards.forEach(function(c) {
+            allCards.forEach(function(c) {
                 frameClasses.forEach(function(fc) { c.classList.remove(fc); });
                 c.classList.remove('top5-decorated');
+                c.style.padding = ''; c.style.borderRadius = ''; c.style.overflow = '';
                 var oldRank = c.querySelector('.card-rank-badge');
                 if (oldRank) oldRank.remove();
                 var oldDeco = c.querySelector('.card-rank-deco');
@@ -2510,6 +2674,19 @@
             });
             // Only decorate when sorted by views
             if (currentSort !== 'views') return;
+            // Find the 5 highest-view video IDs from filteredData
+            var top5Ids = filteredData.slice(0, 5).map(function(d) { return String(d.id); });
+            // Build a map of id → rank
+            var idToRank = {};
+            top5Ids.forEach(function(id, i) { idToRank[id] = i; });
+            // Find cards by data-id attribute
+            var cards = [];
+            allCards.forEach(function(c) {
+                var id = c.getAttribute('data-id');
+                if (id && idToRank.hasOwnProperty(id)) {
+                    cards[idToRank[id]] = c;
+                }
+            });
             var decoSvgs = [
                 '<svg viewBox="0 0 32 32" width="22" height="22"><defs><linearGradient id="gc1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffd200"/><stop offset="50%" stop-color="#f5a623"/><stop offset="100%" stop-color="#b8860b"/></linearGradient></defs><g filter="drop-shadow(0 1px 2px rgba(0,0,0,0.5))"><path d="M4 24 L2 10 L8 16 L12 6 L16 14 L20 6 L24 16 L30 10 L28 24Z" fill="url(#gc1)" stroke="#b8860b" stroke-width="0.5"/><path d="M4 24h24v4H4z" fill="url(#gc1)"/><circle cx="16" cy="18" r="2" fill="#c0392b" stroke="#a01010" stroke-width="0.4"/></g></svg>',
                 '<svg viewBox="0 0 32 32" width="22" height="22"><defs><linearGradient id="sc1b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#808080"/></linearGradient></defs><g filter="drop-shadow(0 1px 2px rgba(0,0,0,0.5))"><path d="M5 24 L3 11 L9 17 L13 7 L16 15 L19 7 L23 17 L29 11 L27 24Z" fill="url(#sc1b)" stroke="#808080" stroke-width="0.5"/><path d="M5 24h22v4H5z" fill="url(#sc1b)"/><circle cx="16" cy="18.5" r="2" fill="#2980b9" stroke="#1a5276" stroke-width="0.4"/></g></svg>',
@@ -2520,8 +2697,9 @@
             var rankColors = ['#ffd200', '#c0c0c0', '#cd7f32', '#5C2E2E', '#2a2a2a'];
             var rankBg = ['rgba(255,210,0,0.9)', 'rgba(192,192,192,0.9)', 'rgba(205,127,50,0.9)', 'rgba(60,20,20,0.85)', 'rgba(30,30,30,0.85)'];
             var rankText = ['#000', '#000', '#fff', '#daa06d', '#9ca3af'];
-            for (var i = 0; i < Math.min(5, cards.length); i++) {
+            for (var i = 0; i < 5; i++) {
                 var card = cards[i];
+                if (!card) continue;
                 card.classList.add(frameClasses[i], 'top5-decorated');
                 card.style.padding = '6px';
                 card.style.borderRadius = '4px';
@@ -2560,10 +2738,11 @@
             else if (currentSort === "cost") filteredData.sort((a,b) => b.cost - a.cost);
             currentPage = 0;
             renderCards(filteredData.slice(0, ITEMS_PER_PAGE), false);
-            decorateTop5Cards();
             renderActiveFilters(); updateStats();
             syncPickButtons(); syncCardMenus();
             if (typeof updateHiddenBar === 'function') updateHiddenBar();
+            // Decorate top 5 after render
+            decorateTop5Cards();
         }
 
         function loadMore() {
@@ -2911,6 +3090,9 @@
                 document.body.classList.add('on-dashboard');
             } else {
                 document.body.classList.remove('on-dashboard');
+            }
+            if (viewId === 'gallery-view') {
+                setTimeout(function() { decorateTop5Cards(); }, 100);
             }
         }
 
@@ -3461,16 +3643,20 @@
                 var pad = colPads[ci % colPads.length];
                 return '<div class="mw-gallery-col" style="padding-top:'+pad+'px">' + col.map(function(item) {
                 var mw = item.mw, sp = item.spec;
+                var igUrl = 'https://www.instagram.com/' + mw.type + '/' + mw.code + '/';
                 var embedUrl = 'https://www.instagram.com/' + mw.type + '/' + mw.code + '/embed/';
-                return '<div class="mw-artwork" style="width:'+sp.w+'px">' +
-                    '<div class="mw-frame">' +
+                var thumbUrl = 'archive_thumbs/' + mw.code + '.jpg';
+                return '<div class="mw-artwork" style="width:'+sp.w+'px" data-embed="'+embedUrl+'" data-ig="'+igUrl+'">' +
+                    '<div class="mw-frame" style="cursor:pointer">' +
                         '<span class="mw-corner fc-tl"></span>' +
                         '<span class="mw-corner fc-tr"></span>' +
                         '<span class="mw-corner fc-bl"></span>' +
                         '<span class="mw-corner fc-br"></span>' +
                         '<div class="mw-mat">' +
-                            '<div class="mw-canvas" id="mwCanvas_' + mw.code + '" style="min-height:'+sp.h+'px">' +
-                                '<iframe src="' + embedUrl + '" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" onload="this.parentElement.classList.add(\'loaded\')"></iframe>' +
+                            '<div class="mw-canvas loaded" style="height:'+sp.h+'px">' +
+                                '<img src="'+thumbUrl+'" alt="Masterpiece '+mw.num+'" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display=\'none\'">' +
+                                '<div class="mw-play-btn"><svg viewBox="0 0 24 24" width="48" height="48"><polygon points="6,3 20,12 6,21" fill="rgba(255,255,255,0.85)"/></svg></div>' +
+                                '<div class="mw-embed-preview"></div>' +
                             '</div>' +
                         '</div>' +
                     '</div>' +
@@ -3487,28 +3673,61 @@
             }).join('');
         }
 
-        // Drag-to-scroll for gallery wall
+        function bindArchiveEvents() {
+            document.querySelectorAll('.mw-artwork').forEach(function(art) {
+                var embedUrl = art.getAttribute('data-embed');
+                var igUrl = art.getAttribute('data-ig');
+                var preview = art.querySelector('.mw-embed-preview');
+                var frame = art.querySelector('.mw-frame');
+                var hoverTimer;
+                if (!preview || !embedUrl) return;
+                frame.addEventListener('mouseenter', function() {
+                    hoverTimer = setTimeout(function() {
+                        if (!preview.querySelector('iframe')) {
+                            preview.innerHTML = '<iframe src="'+embedUrl+'" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true"></iframe>';
+                        }
+                        preview.classList.add('active');
+                    }, 400);
+                });
+                frame.addEventListener('mouseleave', function() {
+                    clearTimeout(hoverTimer);
+                    preview.classList.remove('active');
+                });
+                frame.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (igUrl) window.open(igUrl, '_blank');
+                });
+            });
+        }
+
+        // Drag-to-scroll for gallery wall (doesn't block clicks)
         (function() {
             var wrap = document.querySelector('.mw-gallery-wrap');
             if (!wrap) return;
-            var isDown = false, startX, scrollLeft;
+            var isDown = false, hasDragged = false, startX, scrollLeft;
             wrap.addEventListener('mousedown', function(e) {
-                isDown = true; startX = e.pageX - wrap.offsetLeft; scrollLeft = wrap.scrollLeft;
+                isDown = true; hasDragged = false;
+                startX = e.pageX - wrap.offsetLeft; scrollLeft = wrap.scrollLeft;
                 wrap.style.cursor = 'grabbing';
             });
             wrap.addEventListener('mouseleave', function() { isDown = false; wrap.style.cursor = 'grab'; });
             wrap.addEventListener('mouseup', function() { isDown = false; wrap.style.cursor = 'grab'; });
             wrap.addEventListener('mousemove', function(e) {
                 if (!isDown) return;
-                e.preventDefault();
                 var x = e.pageX - wrap.offsetLeft;
+                var diff = Math.abs(x - startX);
+                if (diff > 5) { hasDragged = true; e.preventDefault(); }
                 wrap.scrollLeft = scrollLeft - (x - startX) * 1.5;
             });
+            wrap.addEventListener('click', function(e) {
+                if (hasDragged) { e.stopPropagation(); e.preventDefault(); }
+            }, true);
         })();
 
         // HUD: Meshy Archives button (bottom-right of donut)
         document.getElementById('hudMeshyGallery').addEventListener('click', function() {
             renderMasterworks();
+            bindArchiveEvents();
             showView('archives-view');
         });
 
@@ -3595,15 +3814,32 @@
             });
         });
 
-        const sortOptions = ["views","date","cost"];
-        const sortLabelsMap = { views: "Sort by Views", date: "Sort by Date", cost: "Sort by Cost" };
-        let sortIndex = 0;
-        document.getElementById("sortBtn").addEventListener("click", () => {
-            sortIndex = (sortIndex + 1) % sortOptions.length;
-            currentSort = sortOptions[sortIndex];
-            document.getElementById("sortBtn").innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg> ' + sortLabelsMap[currentSort];
-            applyFilters();
-        });
+        (function() {
+            var trigger = document.getElementById('sortTrigger');
+            var dropdown = document.getElementById('sortDropdown');
+            var label = document.getElementById('sortLabel');
+            var labelsMap = { views: 'Sort by Views', date: 'Sort by Date', cost: 'Sort by Cost' };
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var isOpen = dropdown.classList.toggle('open');
+                trigger.classList.toggle('open', isOpen);
+            });
+            dropdown.addEventListener('click', function(e) {
+                var opt = e.target.closest('.sort-option');
+                if (!opt) return;
+                dropdown.querySelectorAll('.sort-option').forEach(function(o) { o.classList.remove('active'); });
+                opt.classList.add('active');
+                currentSort = opt.dataset.sort;
+                label.textContent = labelsMap[currentSort];
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+                applyFilters();
+            });
+            document.addEventListener('click', function() {
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+            });
+        })();
 
         let searchTimer;
         document.getElementById("searchInput").addEventListener("input", e => {
@@ -3615,6 +3851,12 @@
         buildMonthFilters();
         setupEmbedHover();
         applyFilters();
+
+        // Hash-based routing (e.g. from influencer-program.html)
+        if (window.location.hash === '#gallery') {
+            showView('gallery-view');
+            applyFilters();
+        }
 
         // Build dashboard background mosaic from thumbnails
         (function() {
